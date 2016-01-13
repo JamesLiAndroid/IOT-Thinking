@@ -79,6 +79,7 @@ Successfully installed docopt-0.6.2 hbmqtt-0.6 passlib-1.6.5 pyyaml-3.11 transit
 
 
 ## RaspberryPi + Arduino
+
 ### 先给树莓派刷个Linux系统
   这一段教程主要是针对Linux平台的.
   我们首先需要做的是给树莓派刷入一个系统,用官方的[Raspbian](https://www.raspberrypi.org/downloads/raspbian/)即可,基于debian.首先准备好你的读卡器和sd卡,<br>
@@ -138,4 +139,94 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
   ubuntu@Linux:~$ cd PyFirmata/<br>
   ubuntu@Linux:~$ sudo python setup.py install
 
-  到这里,准备工作正式完成!
+  到这里,软件的准备工作正式完成!
+
+## 硬件准备
+  有硬件才叫物联网啊!所以我将接入硬件!硬件中的'HelloWorld'就是先点亮一个LED.我们思考点亮LED的方式是一种被动接收的方式,<br>
+  也就是说我们是发送一个指令"命令"LED点亮,这是一条路;我思考的是如果你需要去监测某些数据,比如室内的PM2.5数据,你如何去获取?
+  比如按下了按键,我们也是以一种最简单的方式来表示这种情况.<br>
+  那么这样我们就有两条路线要走了,一条是发送,另一条是接收,在MQTT协议中分别表示publish和subscribe.<br>
+  还是去说硬件电路搭建的问题吧,我先上电路图了
+
+  ![Arduino电路图](./Arduino_content.jpg)
+
+  这里安利个开源的画电路图的软件,[Fritzing](http://fritzing.org/),Linux下这样的软件不好找啊,所以大家支持下!<br>
+  按照图中所表示的连线来接入就可以了!
+
+## 开始写代码了
+  我们已经准备好了Android的代码,我只是做了把官方应用兼容Android Studio开发,暂时使用官方的应用程序,我会在后续单独写一个教程,介绍对android应用的定制化开发.<br>
+  那么我们的服务器也已经搭建完毕了,我们只需要在服务器端运行hbmqtt命令即可,所以服务器端我们也不需要费心思了.同样的后续我也会有详细教程来介绍对服务器的定制开发.<br>
+  这样我们就剩下树莓派端的代码编写了,在上代码之前还是请您大致看一下Python的语法,便于了解.包括我后续的面向树莓派的开发都是使用Python!<br>
+  前面我们提到了两个思路,那么我们先去点亮一个LED,上代码在注释中解释相关代码的含义,如下:<br>
+  >
+    #!/usr/bin/env python
+    # encoding: utf-8
+    import pyfirmata
+    import time
+    import sys
+    import paho.mqtt.client as mqtt # 第一步,导入我们需要的包
+    board=pyfirmata.Arduino('/dev/ttyUSB0') # 初始化设备,这个地方设备名称上可能不同,有可能是/dev/ttyACM0
+    led_pin = board.get_pin('d:10:o') # 初始化端口,d代表数字的,10代表10号端口,o代表输出的意思
+    print("端口初始化!")
+    def output_level(): # 控制LED的函数
+    try:
+        while True:
+            led_pin.write(1)
+            time.sleep(0.5)
+            led_pin.write(0)
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        pass
+    # mqtt中的四个回调方法
+    def on_connect(mqttc,obj,flag,rc):
+        print("rc : "+str(rc))
+    def on_message(mqttc,obj,msg):
+        print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+        #print("mid:"+str(mid))li
+        output_level()
+    def on_publish(mqttc,obj,mid):
+        print("mid:"+str(mid))
+        #print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+    def on_subscribe(mqttc,obj,mid,granted_qos):
+        print("Subscribed: "+str(mid)+" "+str(granted_qos))
+    mqttc = mqtt.Client(protocol = mqtt.MQTTv311) # 初始化mqtt客户端,注意这里必须指定协议版本为3.1.1,否则无法与服务器通信
+                                                # 会出现协议头不正确的错误,导致通信无法继续
+    mqttc.on_message=on_message  # 回调方法的赋值
+    mqttc.on_connect = on_connect
+    mqttc.on_publish = on_publish
+    mqttc.on_subscribe = on_subscribe
+    mqttc.connect("114.215.93.235",1883,60) # 连接服务器
+    mqttc.subscribe("abc",0) # 消息订阅,我们从手机上来控制
+    mqttc.loop_forever() # 死循环,堵塞线程,运行
+
+
+    下面是监听按键的代码:
+    >
+    #!/usr/bin/env python
+    # encoding: utf-8
+    import pyfirmata
+    import time
+    import paho.mqtt.client as mqtt
+    import paho.mqtt.publish as publish
+    board = pyfirmata.Arduino('/dev/ttyUSB0')
+    switch_pin = board.get_pin('d:4:i')
+    it = pyfirmata.util.Iterator(board) # 使用单独的迭代器线程来监听开关的状态读取
+    it.start() # 开启线程
+    switch_pin.enable_reporting() # 启用报告功能
+    try:
+        while True:
+            input_state = switch_pin.read()
+            print("input_state: %s" % input_state)
+            if input_state == False: # 按键按下
+                # 发送消息
+                print('Button Pressed')
+                publish.single("abc","1234567",hostname="114.215.93.235",protocol=mqtt.MQTTv311) # 发送广播消息到服务器
+                print("============================")
+                time.sleep(0.2)
+    except KeyboardInterrupt:
+        board.exit()
+
+  代码不长也很简单,如果实在懒得敲的话,我也提供这个代码的下载,这里是[下载地址](https://github.com/JamesLiAndroid/IOT_Raspberry_Arduino)!
+
+## 开始测试
+  上述所有的步骤都完成
