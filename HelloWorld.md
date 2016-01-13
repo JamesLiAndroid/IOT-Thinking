@@ -158,7 +158,7 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
   那么我们的服务器也已经搭建完毕了,我们只需要在服务器端运行hbmqtt命令即可,所以服务器端我们也不需要费心思了.同样的后续我也会有详细教程来介绍对服务器的定制开发.<br>
   这样我们就剩下树莓派端的代码编写了,在上代码之前还是请您大致看一下Python的语法,便于了解.包括我后续的面向树莓派的开发都是使用Python!<br>
   前面我们提到了两个思路,那么我们先去点亮一个LED,上代码在注释中解释相关代码的含义,如下:<br>
-  >
+  > HelloWorld_LED.py
     #!/usr/bin/env python
     # encoding: utf-8
     import pyfirmata
@@ -201,7 +201,7 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
 
 
     下面是监听按键的代码:
-    >
+    >HelloWorld_Key.py
     #!/usr/bin/env python
     # encoding: utf-8
     import pyfirmata
@@ -229,4 +229,51 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
   代码不长也很简单,如果实在懒得敲的话,我也提供这个代码的下载,这里是[下载地址](https://github.com/JamesLiAndroid/IOT_Raspberry_Arduino)!
 
 ## 开始测试
-  上述所有的步骤都完成
+  上述所有的步骤都完成后,我们开始测试.这里我们先测试控制LED的代码.<br>
+  首先先启动你服务器上的hbmqtt,如下:
+  > (venv)abc@12345676:~/IOT_Practice$ hbmqtt  
+  [2016-01-13 09:56:33,531] :: INFO - Listener 'default' bind to 0.0.0.0:1883 (max_connecionts=-1)
+
+  Arduino在连接树莓派后(前提是您按照我前面的方式配置了Arduino作为树莓派的接口板),在树莓派上执行相应的脚本代码,也就是执行HelloWorld_LED.py,命令如下:
+  >
+  pi@raspberrypi:~/IOT-Project/examples $ sudo python HelloWorld_LED.py
+  端口初始化!
+  rc : 0
+  Subscribed: 1 (0,)
+
+  然后就是手机端的操作,我用图解的方式来展示如何操作,<br>
+  ![首先](./Start.png)
+
+  ![设置](./Setting.png)
+
+  ![publish](./publish.png)
+
+  在publish之后,如果一切连接正常的话,我们树莓派的Terminal中会显示我们publish的消息,如下:<br>
+  >
+  pi@raspberrypi:~/IOT-Project/examples $ sudo python HelloWorld_LED.py
+  端口初始化!
+  rc : 0
+  Subscribed: 1 (0,)
+  abc 0 家都几点能到
+
+  然后这时我们的LED也就以呼吸灯的模式亮了起来!如下图:<br>
+
+  ![LED_on](./LED_on.jpg)
+
+  灯点亮后,我们来看按键的操作,这时候先用ctrl+d结束树莓派上的python程序,然后运行另一个按键的程序.<br>
+  >
+  pi@raspberrypi:~/IOT-Project/examples $ sudo python HelloWorld_LED.py
+  input_state:True
+  input_state:True
+  input_state:True
+  .......
+
+  屏幕上不断出现"input_state:True"的日志信息,这时我们要在手机上这样操作.(PS:如果客户端断开连接,就重新建一个连接)<br>
+
+  ![KEY_press](./subscribe.png)
+
+  这时按下按键可以在手机上看到:<br>
+
+  ![KEY_press_rec](./msg_rec.png)
+
+  到这里,我们的HelloWorld就完成了,确实很费劲啊!
