@@ -124,7 +124,7 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
   > File->Example->Firmata->StandardFirmata
 
   这样就打开了StandardFirmata.这时我们将Arduino连接到树莓派上以便树莓派可以和Arduino进行通信并且为其提供电源.<br>
-  然后我们需要把Firmata安装到Arduino上,点击![alt text](./bianyi.bmp "编译")先检查下是否有语法错误,然后点击![alt text](./load.bmp "载入")<br>
+  然后我们需要把Firmata安装到Arduino上,点击![alt text](./MQTTimg/bianyi.bmp "编译")先检查下是否有语法错误,然后点击![alt text](./MQTTimg/load.bmp "载入")<br>
   将程序安装到Arduino上,这时Arduino就开始等待与树莓派进行通信.
 
   最后我们需要在树莓派上安装PyFirmata,它要求使用PySerial库,这两个库都需要git,一并在此进行安装.<br>
@@ -148,7 +148,7 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
   那么这样我们就有两条路线要走了,一条是发送,另一条是接收,在MQTT协议中分别表示publish和subscribe.<br>
   还是去说硬件电路搭建的问题吧,我先上电路图了
 
-  ![Arduino电路图](./Arduino_content.jpg)
+  ![Arduino电路图](./MQTTimg/Arduino_content.jpg)
 
   这里安利个开源的画电路图的软件,[Fritzing](http://fritzing.org/),Linux下这样的软件不好找啊,所以大家支持下!<br>
   按照图中所表示的连线来接入就可以了!
@@ -242,11 +242,11 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
   Subscribed: 1 (0,)
 
   然后就是手机端的操作,我用图解的方式来展示如何操作,<br>
-  ![首先](./Start.png)
+  ![首先](./MQTTimg/Start.png)
 
-  ![设置](./Setting.png)
+  ![设置](./MQTTimg/Setting.png)
 
-  ![publish](./publish.png)
+  ![publish](./MQTTimg/publish.png)
 
   在publish之后,如果一切连接正常的话,我们树莓派的Terminal中会显示我们publish的消息,如下:<br>
   >
@@ -258,7 +258,7 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
 
   然后这时我们的LED也就以呼吸灯的模式亮了起来!如下图:<br>
 
-  ![LED_on](./LED_on.jpg)
+  ![LED_on](./MQTTimg/LED_on.jpg)
 
   灯点亮后,我们来看按键的操作,这时候先用ctrl+d结束树莓派上的python程序,然后运行另一个按键的程序.<br>
   >
@@ -270,10 +270,10 @@ none            4.0K     0  4.0K   0% /sys/fs/cgroup<br>
 
   屏幕上不断出现"input_state:True"的日志信息,这时我们要在手机上这样操作.(PS:如果客户端断开连接,就重新建一个连接)<br>
 
-  ![KEY_press](./subscribe.png)
+  ![KEY_press](./MQTTimg/subscribe.png)
 
   这时按下按键可以在手机上看到:<br>
 
-  ![KEY_press_rec](./msg_rec.png)
+  ![KEY_press_rec](./MQTTimg/msg_rec.png)
 
   到这里,我们的HelloWorld就完成了,确实很费劲啊!
