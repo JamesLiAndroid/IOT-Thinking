@@ -18,7 +18,7 @@
 
 -客户端:
 
---Android/IOS移动端:paho-Android
+--Android/IOS移动端:paho-Android,paho-swift
 
 --树莓派(raspberry pi 2代B型):paho-python 
 
