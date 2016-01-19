@@ -72,7 +72,7 @@
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)
 
-    stream = open('./config.yaml','r')
+    stream = open('/home/ubuntu/IotProject/server/config.yaml','r')
     yaml_conf = yaml.load(stream)
     broker = Broker(yaml_conf)
 
