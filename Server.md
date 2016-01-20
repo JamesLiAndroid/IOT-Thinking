@@ -119,3 +119,5 @@
 
     root       857     1  0 09:29 ?        00:00:00 python /home/ubuntu/Iot-Project/server/serins.py
   证明我们成功开启了,服务端代码,这时候他就常驻后台运行了!
+
+  代码放置在[IOT_Server](https://github.com/JamesLiAndroid/IOT_Server)
