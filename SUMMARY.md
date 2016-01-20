@@ -6,7 +6,5 @@
 * [通信协议制定](CMProtocol.md)
 * [服务器代码编写](Server.md)
 * [硬件电路搭建](Hardware.md)
-* 客户端代码编写
-   * Android
 * 展望与总结
 
