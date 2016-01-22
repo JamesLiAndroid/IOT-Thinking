@@ -20,7 +20,7 @@
 
 --Android/IOS移动端:paho-Android,paho-swift
 
---树莓派(raspberry pi 2代B型):paho-python 
+--树莓派(raspberry pi 2代B型):paho-python
 
 --最后半公里:arduino UNO
 
@@ -31,7 +31,7 @@
 慢慢来,还有很长的路要走!
 
 ## 联系我(Contact me)
-lsyAndroid
+lsyAndroid,一个电子信息工程专业的Android野生程序员,所以因为软件开发相关课程学习不到位而被拒绝很多次,我指的是工作而不是妹子!
 
 gmail:lsy1234567android@gmail.com
 
