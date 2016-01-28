@@ -971,6 +971,81 @@
 
   ![item_content](./MQTTimg/item_content.gif)
 
-  到这里我们的基本项目就已经构建完成了,下边我们将引入paho-Android的相关资源来定制开发我们的app.这里github中代码的tag为0.1.
+### SwipeToFresh
+  这样我们还剩下最后一个内容,就是添加下拉刷新,这里兼容库中给我们提供了SwipeToFresh这个组件,我们来看一下.先来看一下布局文件编写:
 
-  
+    <?xml version="1.0" encoding="utf-8"?>
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recyclerview"
+            >
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+  SwipeToFresh这个组件必须包含一个可以滚动的布局组件,比如ListView或RecyclerView,若不是,需要在其外层包裹一个ScrollView,否则显示动画的时候就会有问题.
+
+  这个时候在主界面上可以显示这个动画了,要想让它真正去处理下拉刷新的操作,我们需要这样去做,在MainActivity.java文件中,我们在前面定义了一个内部类DesignDemoFragment,
+  先在内部类的开头定义一个变量:
+
+    private SwipeRefreshLayout srl;
+
+  在内部类的*onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)*方法下,我们编写如下代码:
+
+    // 控制下拉刷新的代码
+    srl = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh_layout);
+    // 设置四种颜色的变化
+    srl.setColorSchemeColors(R.color.color_1, R.color.color_2, R.color.color_3, R.color.color_4);
+    // 进度圈大小,两种情况
+    srl.setSize(SwipeRefreshLayout.DEFAULT);
+    // srl.setSize(SwipeRefreshLayout.LARGE);
+    // 进度圈的背景颜色
+    srl.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.swipe_background_color));
+    // 处理刷新后的操作
+    srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+				@Override
+				public void onRefresh() {
+					Snackbar.make(srl, "Refresh....", Snackbar.LENGTH_LONG)
+							.setAction("Action", new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									v.setVisibility(View.GONE);
+								}
+							}).show();
+					// 处理刷新的数据问题
+					for (int i = 0; i < 50; i++) {
+						Log.d("TAG", "刷新" + i);
+					}
+					//srl.setRefreshing(false);
+					handler.sendEmptyMessage(1);
+				}
+			});
+
+  然后在DesignDemoFragment内部类中编写我们的handler,代码如下:
+
+    private Handler handler = new Handler() {
+      @Override
+      public void handleMessage(Message msg) {
+        switch (msg.what) {
+          case 1:
+          // 刷新完毕,停止刷新
+          srl.setRefreshing(false);
+          break;
+        default:
+          break;
+        }
+      }
+    };
+
+  刷新效果如下,刷新操作的结果会打印50条日志信息.
+
+  ![](./MQTTimg/)
+
+  到这里我们的基本项目就已经构建完成了,下边我们将引入paho-Android的相关资源来定制开发我们的app.这里github中代码的tag为0.1.
